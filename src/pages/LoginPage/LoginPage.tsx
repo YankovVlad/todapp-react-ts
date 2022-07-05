@@ -1,5 +1,10 @@
-export const Homepage = () => {
+import { Link } from "react-router-dom"
+
+export const LoginPage = () => {
   return (
-    <h1>HOMEPAGE</h1>
+    <>
+    <h1>LoginPage</h1>
+    <Link to="/"> Home </Link>
+    </>
   )
 }
