@@ -1,9 +1,10 @@
-import { useState } from 'react'
+
 import './App.css'
 
 import {Route, Routes} from 'react-router-dom'
 import { Homepage } from '../pages/Homepage/Homepage'
 import {LoginPage} from "../pages/LoginPage/LoginPage"
+import { Auth, getAuth } from 'firebase/auth'
 
 function App() {
 
@@ -12,7 +13,7 @@ function App() {
       <h1>TODAPP</h1>
       <Routes>
         <Route path="/" element={<Homepage/>} />
-        <Route path="/login" element={<LoginPage/>} />
+        <Route path="/login" element={<LoginPage />} />
 
       </Routes>
 
