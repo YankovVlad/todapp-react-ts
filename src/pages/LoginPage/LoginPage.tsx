@@ -1,4 +1,4 @@
-import { Link, Navigate } from "react-router-dom"
+import { Link, Navigate, useNavigate } from "react-router-dom"
 import { useContext, useEffect, useState } from "react";
 import { signInWithPopup, GoogleAuthProvider, Auth,setPersistence,browserLocalPersistence } from "firebase/auth";
 import type { OAuthCredential } from "firebase/auth";
@@ -16,24 +16,37 @@ export const LoginPage = () => {
 
   const provider = new GoogleAuthProvider();
   const auth:any = useContext(AuthContext)
+  const username = useSelector((state:RootState) => state.user.name)
+
+  const navigate = useNavigate()
 
   const getUser = async () => {
-    setLoading(true)
-    setPersistence(auth, browserLocalPersistence)
-  .then(() => {
-    dispatch(setUser({
-        displayName:auth.currentUser && auth.currentUser.displayName, 
-        email:auth.currentUser && auth.currentUser.email, 
-        photoURL:auth.currentUser && auth.currentUser.photoURL, 
-        uid:auth.currentUser && auth.currentUser.uid
-      }))
-      setLoading(false)
+    if (!username) {
+      setLoading(true)
+      await setPersistence(auth, browserLocalPersistence)
+      .then(() => {
     
-  })
-  .catch((error) => {
-    // Handle Errors here.
-  
-  });
+        if (!auth.currentUser) {
+          dispatch(setUser({
+            displayName:auth.currentUser.displayName, 
+            email: auth.currentUser.email, 
+            photoURL:auth.currentUser.photoURL, 
+            uid: auth.currentUser.uid
+          }))
+        }
+        
+      
+    }).then(() => {
+      setLoading(false)
+      navigate('/', {replace: true})
+    })
+    .catch((error) => {
+      // Handle Errors here.
+      setLoading(false)
+    }).finally(() => {
+      setLoading(false)
+    });
+}
 }
   const signInWithGoogle = () => {
     signInWithPopup(auth, provider)
@@ -49,8 +62,8 @@ export const LoginPage = () => {
       });
   }
   useEffect(() => {
-    getUser()
-  })
+     getUser()
+  }, [])
   if (loading) {
     return <Loader />
   }
@@ -59,7 +72,7 @@ export const LoginPage = () => {
     <h1>LoginPage</h1>
     <Link to="/"> Home </Link>
     <button onClick={signInWithGoogle}>Login with google</button>
-    {auth.currentUser && <Navigate to="/"/>}
+    {auth?.currentUser || username ? <Navigate to="/"/> : null}
     </>
   )
 }
